@@ -15,5 +15,9 @@ public class WindowSimulator extends JFrame {
 
         // Initial size of the window
         setSize(800,600);
+
+        // Adding the road
+        this.add(new Road());
     }
+
 }
