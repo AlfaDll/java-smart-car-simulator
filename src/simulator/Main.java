@@ -1,10 +1,10 @@
 package simulator;
 
 public class Main {
-    public static void main() {
+     static void main() {
         // Making the window
-        WindowSimulator myWindow = new WindowSimulator();
+        MenuInterface myMenu = new MenuInterface();
         // Literally setting visible
-        myWindow.setVisible(true);
+        myMenu.setVisible(true);
     }
 }

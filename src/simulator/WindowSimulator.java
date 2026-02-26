@@ -8,7 +8,7 @@ public class WindowSimulator extends JFrame {
 
     // Constructor for  WindowSimulator
     public WindowSimulator(){
-        setTitle("Smart Car Simulator");
+        setTitle("Smart Car Simulator - 2D");
 
         // Means kill the program and free memory when red cross (top right) is clicked
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
