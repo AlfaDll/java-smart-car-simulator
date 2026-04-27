@@ -48,7 +48,7 @@ public class MenuInterface extends JFrame {
         });
 
         // Button 2 : First Person View (same as the other button just the background color that changes)
-        JButton btnFirstPerson = new JButton("Third Person View");
+        JButton btnFirstPerson = new JButton("First Person View");
         btnFirstPerson.setFont(new Font("Arial", Font.BOLD, 20));
         btnFirstPerson.setBackground(Color.blue);
         btnFirstPerson.setForeground(Color.white);
@@ -93,6 +93,6 @@ public class MenuInterface extends JFrame {
         // Literally setting visible
         window.setVisible(true);
         // Showing a popup message. The window stays open behind it!
-        JOptionPane.showMessageDialog(this, "First Person view coming soon!");
+        //JOptionPane.showMessageDialog(window, "First Person view coming soon!");
     }
 }

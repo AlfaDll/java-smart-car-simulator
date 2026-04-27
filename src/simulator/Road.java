@@ -3,6 +3,8 @@ package simulator;
 import javax.swing.*;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class Road extends JPanel {
     // One car on the road
@@ -12,6 +14,19 @@ public class Road extends JPanel {
     public Road() {
         // Create one car: position 50, speed 10, no acceleration
         car = new Car(50, 10, 0);
+
+        Timer timer = new Timer(20, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // 20 milliseconds = 50 fps
+                car.update(0.02);
+
+                //repaint : delete the screen and draw the new car's position with paintComponent()
+                repaint();
+            }
+        });
+
+        timer.start();
     }
 
     // Overriding the default drawing method of JPanel
@@ -32,5 +47,4 @@ public class Road extends JPanel {
         car.draw(g);
     }
 
-
-}
+    }

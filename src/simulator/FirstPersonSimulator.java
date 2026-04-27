@@ -14,6 +14,7 @@ public class FirstPersonSimulator extends JFrame {
         // Initial size of the window
         setSize(800,600);
 
+        this.add((new PersectiveRoad()));
     }
 
 }
