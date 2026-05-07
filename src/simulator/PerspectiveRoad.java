@@ -4,22 +4,65 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.Image;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 
 public class PerspectiveRoad extends JPanel {
     // Variable for the animation (lines moves)
     private int offset = 0;
 
-    // Constructor to add the animation timer
-    public PerspectiveRoad() {
-        //timer of 30 milliseconds
+    // Variable to stock the image of the car ahead
+    private Image carImage;
+
+    // Variable for the steering wheel angle (in radians)
+    private double steeringAngle = 0.0;
+
+    // Variable for the actual speed of the car (km/h)
+    private int speed = 120;
+
+    public PerspectiveRoad() throws IOException {
+        // Allow JPanel to listen the keyboard
+        this.setFocusable(true);
+        this.requestFocusInWindow();
+
+        this.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+                    steeringAngle -= 0.1;
+                    if (steeringAngle < -0.8) steeringAngle = -0.8;
+                } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+                    steeringAngle += 0.1;
+                    if (steeringAngle > 0.8) steeringAngle = 0.8;
+                }
+                else if (e.getKeyCode() == KeyEvent.VK_UP) {
+                    speed += 2;
+                    if (speed > 220) speed = 220;
+                } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+                    speed -= 3;
+                    if (speed < 0) speed = 0;
+                }
+            }
+            @Override
+            public void keyReleased(KeyEvent e) {
+                steeringAngle = 0.0;
+            }
+        });
+
+        carImage = ImageIO.read(new File("src/simulator/carInFront.png"));
+
         Timer timer = new Timer(30, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                offset = offset + 8; // Speed of the road
+                offset = offset + 8;
                 if (offset > 150) {
                     offset = 0;
                 }
-                repaint(); // redraw of the window
+                repaint();
             }
         });
         timer.start();
@@ -27,55 +70,51 @@ public class PerspectiveRoad extends JPanel {
 
     @Override
     protected void paintComponent(Graphics g){
-        // First we clean the window
         super.paintComponent(g);
 
-        // Draw the sky (top-half of the front window)
-        g.setColor(new Color(135, 206, 235)); // Un beau bleu ciel
+        // Draw the sky
+        g.setColor(new Color(135, 206, 235));
         g.fillRect(0, 0, 800, 300);
 
-        // Draw the grass (bottom-half of the front-window)
-        g.setColor(new Color(34, 139, 34)); // Vert forêt
+        // Draw the grass
+        g.setColor(new Color(34, 139, 34));
         g.fillRect(0, 300, 800, 300);
 
-        // draw the road whit gray
+        // draw the road
         g.setColor(Color.GRAY);
-        // The four x corners coordinates
-        int[] xPoints = {100, 700, 450, 350};
-        // The four y corners coordinates
+        int[] xPoints = {-400, 800, 350, 250};
         int[] yPoints = {600, 600, 300, 300};
-        // draw the form with the 4 points
         g.fillPolygon(xPoints, yPoints, 4);
 
         // the white line of the middle
         g.setColor(Color.white);
-        int[] xLine = {390, 410, 402, 398};
+        int[] xLine = {180, 200, 302, 298};
         int[] yLine = {600, 600, 300, 300};
         g.fillPolygon(xLine, yLine, 4);
 
-        // Car body of the car in front
-        g.setColor(new Color(200, 0, 0));
-        g.fillRect(280, 380, 240, 120);
+        // Speed simulation cutting the white line
+        g.setColor(Color.GRAY);
+        for(int i = 0; i < 3; i++) {
+            int yCut = 300 + ((offset + (i * 100)) % 300);
+            int cutHeight = 10 + ((yCut - 300) / 4);
+            int xCut = 300 - ((yCut - 300) / 4);
+            g.fillRect(xCut, yCut, 40, cutHeight);
+        }
 
-        // Back window of the car in front
-        g.setColor(Color.DARK_GRAY);
-        g.fillRect(310, 400, 180, 40);
+        if (carImage != null){
+            g.drawImage(carImage, 255, 325, 130, 110, null);
+        }
 
-        // Tires of the car in front
-        g.setColor(Color.BLACK);
-        g.fillRect(260, 470, 40, 40); // Left tire
-        g.fillRect(500, 470, 40, 40); // Right tire
-
-        // The roof edge (Top of the screen)
-        g.setColor(new Color(20, 20, 20)); // Very dark gray
+        // The roof edge
+        g.setColor(new Color(20, 20, 20));
         g.fillRect(0, 0, 800, 40);
 
-        // The left A-pillar of the windshield (Montant gauche)
+        // The left A-pillar
         int[] xLeftPillar = {0, 80, 40, 0};
         int[] yLeftPillar = {0, 0, 480, 480};
         g.fillPolygon(xLeftPillar, yLeftPillar, 4);
 
-        // The right A-pillar of the windshield (Montant droit)
+        // The right A-pillar
         int[] xRightPillar = {720, 800, 800, 760};
         int[] yRightPillar = {0, 0, 480, 480};
         g.fillPolygon(xRightPillar, yRightPillar, 4);
@@ -84,31 +123,36 @@ public class PerspectiveRoad extends JPanel {
         g.setColor(new Color(30, 30, 30));
         g.fillRect(0, 480, 800, 120);
 
-        // Outside of the steering wheel
+        // Speed text
+        g.setFont(new Font("Monospaced", Font.BOLD, 40));
+        g.setColor(new Color(50, 255, 50));
+        g.drawString(speed + " KM/H", 430, 550);
+
+        // Steering wheel
+        Graphics2D g2d = (Graphics2D) g;
+
         g.setColor(new Color(40, 40, 40));
         g.fillOval(100, 400, 200, 200);
 
-        // Inside of the steering wheel (makes a hole)
         g.setColor(new Color(30, 30, 30));
         g.fillOval(130, 430, 140, 140);
 
-        // Steering wheel branch
         g.setColor(new Color(40, 40, 40));
         g.fillRect(100, 490, 200, 20);
-        g.setColor(Color.GRAY);
 
-        // Speed simulation cutting the white line
-        for(int i = 0; i < 3; i++) {
-            // Y position moves down the screen
-            int yCut = 300 + ((offset + (i * 100)) % 300);
+        // Rotate steering wheel
+        java.awt.geom.AffineTransform oldTransform = g2d.getTransform();
+        g2d.rotate(steeringAngle, 200, 500);
 
-            // The cut gets taller as it gets closer to us (3D effect)
-            int cutHeight = 10 + ((yCut - 300) / 4);
+        g2d.setColor(new Color(40, 40, 40));
+        g2d.fillOval(100, 400, 200, 200);
 
-            // We draw the gray rectangle over the white line
-            g.fillRect(380, yCut, 40, cutHeight);
-        }
+        g2d.setColor(new Color(30, 30, 30));
+        g2d.fillOval(130, 430, 140, 140);
+
+        g2d.setColor(new Color(40, 40, 40));
+        g2d.fillRect(100, 490, 200, 20);
+
+        g2d.setTransform(oldTransform);
     }
 }
-
-

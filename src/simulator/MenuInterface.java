@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 public class MenuInterface extends JFrame {
     // Constructor
@@ -58,7 +59,11 @@ public class MenuInterface extends JFrame {
         btnFirstPerson.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                launchFirstPersonView();
+                try {
+                    launchFirstPersonView();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
 
@@ -85,7 +90,7 @@ public class MenuInterface extends JFrame {
     }
 
     // Method to launch the 3D Simulator (First Person View)
-    private void launchFirstPersonView(){
+    private void launchFirstPersonView() throws IOException {
         // Close the menu window
         this.dispose();
         // Open the simulator
